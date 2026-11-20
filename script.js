@@ -1,62 +1,84 @@
-const translateBtn = document.getElementById("translateBtn");
 
-translateBtn.addEventListener("click", async function () {
+const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
 
-    const inputText = document.getElementById("inputText").value;
-    const sourceLanguage = document.getElementById("sourceLanguage").value;
-    const targetLanguage = document.getElementById("targetLanguage").value;
-    const outputText = document.getElementById("outputText");
+// FAQ Questions and Answers
+const faqs = [
+    {
+        question: "hello",
+        answer: "Hello! Welcome to our FAQ Chatbot."
+    },
+    {
+        question: "your name",
+        answer: "I am an FAQ Chatbot."
+    },
+    {
+        question: "how are you",
+        answer: "I am fine! How can I help you?"
+    },
+    {
+        question: "services",
+        answer: "We provide helpful information and customer support."
+    },
+    {
+        question: "contact",
+        answer: "You can contact us through our email."
+    },
+    {
+        question: "thank you",
+        answer: "You're welcome! Have a nice day."
+    },
+    {
+        question: "bye",
+        answer: "Goodbye! Have a great day."
+    }
+];
 
-    if (inputText.trim() === "") {
-        alert("Please enter some text!");
+// Send Message Function
+function sendMessage() {
+    const message = userInput.value.trim().toLowerCase();
+
+    if (message === "") {
         return;
     }
 
-    if (sourceLanguage === targetLanguage) {
-        alert("Please select different languages!");
-        return;
-    }
+    addMessage(userInput.value, "user-message");
 
-    outputText.value = "Translating...";
+    let answer = "Sorry, I don't understand your question. Please try another question.";
 
-    try {
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(inputText)}&langpair=${sourceLanguage}|${targetLanguage}`;
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.responseStatus === 200) {
-            outputText.value = data.responseData.translatedText;
-        } else {
-            outputText.value = "Translation failed. Please try again.";
+    // Find matching FAQ
+    for (let faq of faqs) {
+        if (message.includes(faq.question)) {
+            answer = faq.answer;
+            break;
         }
-
-    } catch (error) {
-        outputText.value = "Something went wrong. Check your internet connection.";
     }
-});
-const swapBtn = document.getElementById("swapBtn");
-const copyBtn = document.getElementById("copyBtn");
 
-swapBtn.addEventListener("click", function () {
-    const source = document.getElementById("sourceLanguage");
-    const target = document.getElementById("targetLanguage");
+    setTimeout(function () {
+        addMessage(answer, "bot-message");
+    }, 500);
 
-    const temp = source.value;
-    source.value = target.value;
-    target.value = temp;
-});
+    userInput.value = "";
+}
 
-copyBtn.addEventListener("click", function () {
-    const output = document.getElementById("outputText");
+// Display Messages
+function addMessage(message, className) {
+    const messageDiv = document.createElement("div");
 
-    navigator.clipboard.writeText(output.value)
-        .then(() => alert("Translation copied!"))
-        .catch(() => alert("Unable to copy text."));
-});
-const clearBtn = document.getElementById("clearBtn");
+    messageDiv.className = className;
+    messageDiv.textContent = message;
 
-clearBtn.addEventListener("click", function () {
-    document.getElementById("inputText").value = "";
-    document.getElementById("outputText").value = "";
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Button Click
+sendBtn.addEventListener("click", sendMessage);
+
+// Enter Key
+userInput.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
 });
